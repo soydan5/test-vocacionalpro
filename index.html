@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Orientación Vocacional</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            position: relative;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #3498db;
+            margin: 25px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+            padding: 15px;
+            background: #e8f4fc;
+            border-radius: 8px;
+        }
+        
+        .instructions {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .personal-data {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .question-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+        }
+        
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .options {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .option input {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #7f8c8d;
+        }
+        
+        .btn-secondary:hover {
+            background: #636e70;
+        }
+        
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f4fc;
+            border-radius: 8px;
+        }
+        
+        .result-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .area-result {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #3498db;
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .area-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .area-description {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .area-details {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .area-interests, .area-aptitudes {
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .completion-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fc;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .admin-section {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #2c3e50;
+            display: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .options {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .area-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test de Orientación Vocacional "CHASIDE"</h1>
+        
+        <div class="intro">
+            <p>Este test te ayudará a identificar tus áreas de intereses y aptitudes profesionales. Responde sinceramente cada pregunta marcando "Sí" o "No".</p>
+        </div>
+        
+        <div class="personal-data">
+            <h2>Datos Personales</h2>
+            <div class="form-group">
+                <label for="nombre">Nombre y Apellido:</label>
+                <input type="text" id="nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="telefono">Número de Celular:</label>
+                <input type="tel" id="telefono" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" required>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>Instrucciones:</h3>
+            <ol>
+                <li>Lee atentamente cada pregunta y contesta Sí o No</li>
+                <li>Responde a todas las preguntas sin omitir ninguna</li>
+                <li>Para contestar cada pregunta, piensa en el tipo de profesión o en la actitud que implica</li>
+            </ol>
+        </div>
+        
+        <form id="test-form">
+            <!-- Las preguntas se insertarán aquí mediante JavaScript -->
+        </form>
+        
+        <button type="button" id="calculate-btn" class="btn" disabled>Calcular resultados</button>
+        
+        <div class="completion-message" id="completion-message">
+            <h3>¡Test completado!</h3>
+            <p>Gracias por completar el test. Tus resultados se muestran a continuación.</p>
+        </div>
+        
+        <div id="results" class="results">
+            <h2 class="result-title">Tus resultados</h2>
+            <div id="results-container">
+                <!-- Los resultados se mostrarán aquí -->
+            </div>
+        </div>
+        
+        <div class="admin-section" id="admin-section">
+            <h2>Acceso Administrador</h2>
+            <div class="form-group">
+                <label for="admin-token">Token de acceso:</label>
+                <input type="password" id="admin-token">
+            </div>
+            <button type="button" id="access-btn" class="btn btn-secondary">Acceder a datos</button>
+            <div id="admin-results" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <footer>
+        <p>Test de Orientación Vocacional CHASIDE - Descubre tus áreas de interés profesional</p>
+    </footer>
+
+    <script>
+        // Configuración - Debes reemplazar estos valores con los tuyos
+        const GITHUB_GIST_ID = 'e03bf0fbd81ad68afe886fae066afcef'; // Reemplazar con el ID de tu Gist
+        const GITHUB_TOKEN = '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'; // Reemplazar con tu token de GitHub
+        
+        // Definición de las áreas según el documento
+        const areas = {
+            C: {
+                name: "Administrativa",
+                description: "Interés en organización, supervisión, orden, análisis y síntesis, colaboración y cálculo.",
+                interests: ["Organización", "Supervisión", "Orden", "Análisis y síntesis", "Colaboración", "Cálculo"],
+                aptitudes: ["Persuasivo", "Objetivo", "Práctico", "Tolerante", "Responsable", "Ambicioso"]
+            },
+            H: {
+                name: "Humanidades y Ciencias Sociales y Jurídicas",
+                description: "Interés en precisión verbal, organización, relación de hechos, lingüística, orden y justicia.",
+                interests: ["Precisión Verbal", "Organización", "Relación de hechos", "Lingüística", "Orden", "Justicia"],
+                aptitudes: ["Responsable", "Justo", "Conciliador", "Persuasivo", "Sagaz", "Imaginativo"]
+            },
+            A: {
+                name: "Artística",
+                description: "Interés en actividades estéticas, armónicas, manuales, visuales y auditivas.",
+                interests: ["Estético", "Armónico", "Manual", "Visual", "Auditivo"],
+                aptitudes: ["Sensible", "Imaginativo", "Creativo", "Detallista", "Innovador", "Intuitivo"]
+            },
+            S: {
+                name: "Ciencias de la Salud",
+                description: "Interés en asistir, investigar, precisión, percepción, análisis y ayudar.",
+                interests: ["Asistir", "Investigar", "Precisión", "Percepción", "Análisis", "Ayudar"],
+                aptitudes: ["Altruista", "Solidario", "Paciente", "Comprensivo", "Respetuoso", "Persuasivo"]
+            },
+            I: {
+                name: "Enseñanzas Técnicas",
+                description: "Interés en cálculo científico, manual, exactitud y planificación.",
+                interests: ["Cálculo", "Científico", "Manual", "Exactitud", "Planificar"],
+                aptitudes: ["Preciso", "Práctico", "Crítico", "Analítico", "Rígido"]
+            },
+            D: {
+                name: "Defensa y Seguridad",
+                description: "Interés en justicia, equidad, colaboración, espíritu de equipo y liderazgo.",
+                interests: ["Justicia", "Equidad", "Colaboración", "Espíritu de equipo", "Liderazgo"],
+                aptitudes: ["Arriesgado", "Solidario", "Valiente", "Agresivo", "Persuasivo"]
+            },
+            E: {
+                name: "Ciencias Experimentales",
+                description: "Interés en investigación, orden, organización, análisis y síntesis, cálculo numérico y clasificar.",
+                interests: ["Investigación", "Orden", "Organización", "Análisis y Síntesis", "Cálculo numérico", "Clasificar"],
+                aptitudes: ["Metódico", "Analítico", "Observador", "Introvertido", "Paciente", "Seguro"]
+            }
+        };
+
+        // Mapeo de preguntas a áreas según la tabla del documento
+        const questionMapping = {
+            // Columna C
+            1: "C", 12: "C", 20: "C", 53: "C", 64: "C", 71: "C", 78: "C", 85: "C", 91: "C", 98: "C",
+            // Columna H
+            9: "H", 25: "H", 34: "H", 41: "H", 56: "H", 67: "H", 74: "H", 80: "H", 89: "H", 95: "H",
+            // Columna A
+            3: "A", 11: "A", 21: "A", 28: "A", 36: "A", 45: "A", 50: "A", 57: "A", 81: "A", 96: "A",
+            // Columna S
+            8: "S", 16: "S", 23: "S", 33: "S", 44: "S", 52: "S", 62: "S", 70: "S", 87: "S", 92: "S",
+            // Columna I
+            6: "I", 19: "I", 27: "I", 38: "I", 47: "I", 54: "I", 60: "I", 75: "I", 83: "I", 97: "I",
+            // Columna D
+            5: "D", 14: "D", 24: "D", 31: "D", 37: "D", 48: "D", 58: "D", 65: "D", 73: "D", 84: "D",
+            // Columna E
+            17: "E", 32: "E", 35: "E", 42: "E", 49: "E", 61: "E", 68: "E", 77: "E", 88: "E", 93: "E"
+        };
+
+        // Preguntas del test (solo las primeras 10 como ejemplo, en la implementación real serían las 98)
+        const questions = [
+            "¿Aceptarías trabajar escribiendo artículos en la sección económica de un diario?",
+            "¿Te ofrecerías para organizar la despedida de soltero de uno de tus amigos?",
+            "¿Te gustaría dirigir/crear un proyecto de urbanización en tu provincia?",
+            "¿A una frustración siempre opones un pensamiento positivo?",
+            "¿Te dedicarías a socorrer a personas accidentadas o atacadas por asaltantes?",
+            "¿Cuando eras chico, te interesaba saber cómo estaban construidos tus juguetes?",
+            "¿Te interesan más los misterios de la naturaleza que los secretos de la tecnología?",
+            "¿Escuchas atentamente los problemas que te plantean tus amigos?",
+            "¿Te ofrecerías para explicar a tus compañeros un determinado tema que ellos no entendieron?",
+            "¿Eres exigente y crítico con tu equipo de trabajo?"
+            // ... (las 88 preguntas restantes)
+        ];
+
+        // Función para mostrar notificación
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = isError ? '#F44336' : '#4CAF50';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Función para guardar datos en GitHub Gist
+        async function saveToGitHub(data) {
+            try {
+                // Formatear datos como CSV
+                const csvData = formatDataAsCSV(data);
+                
+                // Enviar datos a GitHub Gist
+                const response = await fetch(`https://api.github.com/gists/${GITHUB_GIST_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'respuestas.csv': {
+                                content: csvData
+                            }
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    showNotification('Datos guardados correctamente');
+                    return true;
+                } else {
+                    throw new Error('Error al guardar en GitHub');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al guardar los datos. Intenta nuevamente.', true);
+                return false;
+            }
+        }
+
+        // Función para formatear datos como CSV
+        function formatDataAsCSV(data) {
+            let csvContent = 'Nombre,Teléfono,Email,Fecha';
+            
+            // Agregar encabezados de áreas
+            Object.keys(areas).forEach(area => {
+                csvContent += `,${area}`;
+            });
+            
+            csvContent += '\n';
+            
+            // Agregar datos
+            csvContent += `"${data.nombre}","${data.telefono}","${data.email}","${data.fecha}"`;
+            
+            // Agregar puntajes de áreas
+            Object.keys(areas).forEach(area => {
+                const score = data.scores[area] || 0;
+                csvContent += `,${score}`;
+            });
+            
+            return csvContent;
+        }
+
+        // Función para inicializar el formulario
+        function initializeForm() {
+            const form = document.getElementById('test-form');
+            form.innerHTML = '';
+
+            questions.forEach((questionText, index) => {
+                const questionNumber = index + 1;
+                const area = questionMapping[questionNumber] || "N/A";
+                
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                
+                const questionPara = document.createElement('p');
+                questionPara.className = 'question-text';
+                questionPara.textContent = `${questionNumber}. ${questionText} (Área: ${area})`;
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                
+                // Opción Sí
+                const yesOption = document.createElement('div');
+                yesOption.className = 'option';
+                const yesInput = document.createElement('input');
+                yesInput.type = 'radio';
+                yesInput.name = `q${questionNumber}`;
+                yesInput.value = 'yes';
+                yesInput.id = `q${questionNumber}-yes`;
+                yesInput.required = true;
+                const yesLabel = document.createElement('label');
+                yesLabel.htmlFor = `q${questionNumber}-yes`;
+                yesLabel.textContent = 'Sí';
+                yesOption.appendChild(yesInput);
+                yesOption.appendChild(yesLabel);
+                
+                // Opción No
+                const noOption = document.createElement('div');
+                noOption.className = 'option';
+                const noInput = document.createElement('input');
+                noInput.type = 'radio';
+                noInput.name = `q${questionNumber}`;
+                noInput.value = 'no';
+                noInput.id = `q${questionNumber}-no`;
+                const noLabel = document.createElement('label');
+                noLabel.htmlFor = `q${questionNumber}-no`;
+                noLabel.textContent = 'No';
+                noOption.appendChild(noInput);
+                noOption.appendChild(noLabel);
+                
+                optionsDiv.appendChild(yesOption);
+                optionsDiv.appendChild(noOption);
+                
+                questionDiv.appendChild(questionPara);
+                questionDiv.appendChild(optionsDiv);
+                form.appendChild(questionDiv);
+            });
+
+            // Habilitar el botón cuando todas las preguntas estén respondidas
+            const formInputs = document.querySelectorAll('input[type="radio"]');
+            const calculateBtn = document.getElementById('calculate-btn');
+            
+            formInputs.forEach(input => {
+                input.addEventListener('change', () => {
+                    const allAnswered = [...formInputs].filter(input => input.checked).length >= questions.length * 0.9;
+                    calculateBtn.disabled = !allAnswered;
+                });
+            });
+        }
+
+        // Inicializar el formulario cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            
+            // Configurar botón de calcular resultados
+            const calculateBtn = document.getElementById('calculate-btn');
+            calculateBtn.addEventListener('click', async function() {
+                // Validar datos personales
+                const nombre = document.getElementById('nombre').value;
+                const telefono = document.getElementById('telefono').value;
+                const email = document.getElementById('email').value;
+                
+                if (!nombre || !telefono || !email) {
+                    showNotification('Por favor, completa todos tus datos personales antes de calcular los resultados.', true);
+                    return;
+                }
+                
+                // Reiniciar puntajes
+                const scores = {};
+                Object.keys(areas).forEach(area => {
+                    scores[area] = 0;
+                });
+                
+                // Calcular puntajes por área
+                for (let i = 1; i <= questions.length; i++) {
+                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selectedOption && selectedOption.value === 'yes') {
+                        const area = questionMapping[i];
+                        if (area && scores[area] !== undefined) {
+                            scores[area]++;
+                        }
+                    }
+                }
+                
+                // Crear objeto con todos los datos
+                const resultData = {
+                    nombre,
+                    telefono,
+                    email,
+                    fecha: new Date().toLocaleString(),
+                    scores
+                };
+                
+                // Guardar en GitHub
+                const saved = await saveToGitHub(resultData);
+                
+                if (saved) {
+                    // Mostrar resultados
+                    showResults(scores);
+                    
+                    // Mostrar sección de resultados
+                    document.getElementById('results').style.display = 'block';
+                    document.getElementById('completion-message').style.display = 'block';
+                    
+                    // Desplazarse suavemente a los resultados
+                    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+            
+            // Configurar acceso administrador
+            document.getElementById('access-btn').addEventListener('click', function() {
+                const token = document.getElementById('admin-token').value;
+                if (token === 'JVcobanCong2025') { // Cambia esto por una contraseña más segura
+                    document.getElementById('admin-results').innerHTML = `
+                        <h3>Datos almacenados</h3>
+                        <p>Los datos se están guardando en tu Gist de GitHub.</p>
+                        <p>Puedes verlos en: <a href="https://gist.github.com/${GITHUB_GIST_ID}" target="_blank">https://gist.github.com/${GITHUB_GIST_ID}</a></p>
+                    `;
+                } else {
+                    showNotification('Token incorrecto', true);
+                }
+            });
+        });
+
+        // Función para mostrar resultados
+        function showResults(scores) {
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = '';
+            
+            // Ordenar áreas por puntaje (de mayor a menor)
+            const sortedAreas = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+            
+            sortedAreas.forEach(areaKey => {
+                const area = areas[areaKey];
+                const score = scores[areaKey];
+                const maxScore = Object.values(questionMapping).filter(a => a === areaKey).length;
+                const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
+                
+                const areaDiv = document.createElement('div');
+                areaDiv.className = 'area-result';
+                
+                const areaNameDiv = document.createElement('div');
+                areaNameDiv.className = 'area-name';
+                areaNameDiv.innerHTML = `<span>${areaKey}: ${area.name}</span> <span>${score}/${maxScore}</span>`;
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                const progress = document.createElement('div');
+                progress.className = 'progress';
+                progress.style.width = `${percentage}%`;
+                progressBar.appendChild(progress);
+                
+                const areaDesc = document.createElement('div');
+                areaDesc.className = 'area-description';
+                areaDesc.textContent = area.description;
+                
+                const areaDetails = document.createElement('div');
+                areaDetails.className = 'area-details';
+                
+                const interestsDiv = document.createElement('div');
+                interestsDiv.className = 'area-interests';
+                interestsDiv.innerHTML = `<strong>Intereses:</strong><br>${area.interests.join(', ')}`;
+                
+                const aptitudesDiv = document.createElement('div');
+                aptitudesDiv.className = 'area-aptitudes';
+                aptitudesDiv.innerHTML = `<strong>Aptitudes:</strong><br>${area.aptitudes.join(', ')}`;
+                
+                areaDetails.appendChild(interestsDiv);
+                areaDetails.appendChild(aptitudesDiv);
+                
+                areaDiv.appendChild(areaNameDiv);
+                areaDiv.appendChild(progressBar);
+                areaDiv.appendChild(areaDesc);
+                areaDiv.appendChild(areaDetails);
+                
+                resultsContainer.appendChild(areaDiv);
+            });
+        }
+    </script>
+</body>
+</html>
