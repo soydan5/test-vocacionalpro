@@ -7,7 +7,7 @@
     <!-- Incluir SDK de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
+ * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -312,28 +312,21 @@
     <div class="notification" id="notification"></div>
     
     <footer>
-        <p>Test de Orientación Vocacional CHASIDE - Descubre tus áreas de interés profesional</p>
+        <p>Test de Orientación Vocacional Prof - Descubre tus áreas de interés profesional</p>
     </footer>
 
     <script>
-        // Configuración de Supabase - REEMPLAZA ESTOS VALORES CON LOS TUYOS
-        const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
-        const SUPABASE_ANON_KEY = 'tu-clave-publica-supabase';
+        // ===== CONFIGURACIÓN SUPABASE - REEMPLAZA ESTOS VALORES =====
+        const SUPABASE_URL = 'https://clefjmvyfbugkaspmcws.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZWZqbXZ5ZmJ1Z2thc3BtY3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MTcxMzgsImV4cCI6MjA3MTI5MzEzOH0.D5ndBsoSy3rWhqHY-6dIuPpAsLl7lJFOCphiflilKys';
+        // ============================================================
+
+        // Inicializar Supabase correctamente
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
-        // Variable global para el cliente Supabase
-        let supabase;
+        console.log('Supabase inicializado:', supabase ? 'Éxito' : 'Error');
 
-        // Inicializar Supabase después de que cargue el SDK
-        function initSupabase() {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('Supabase inicializado correctamente');
-            } else {
-                console.error('Error: SDK de Supabase no cargado');
-                showNotification('Error de configuración. Recarga la página.', true);
-            }
-        }
-
+        // [MANTENER TODAS TUS FUNCIONES Y CONFIGURACIONES ACTUALES]
         // Definición de las áreas según el documento
         const areas = {
             C: {
@@ -369,7 +362,7 @@
             D: {
                 name: "Defensa y Seguridad",
                 description: "Interés en justicia, equidad, colaboración, espíritu de equipo y liderazgo.",
-                interests: ["Justicia", "Equidad", "Colaboración", "Espíritu de equipo", "Liderazgo"],
+                interests: ["Justicia", "Equidad", "Collaboración", "Espíritu de equipo", "Liderazgo"],
                 aptitudes: ["Arriesgado", "Solidario", "Valiente", "Agresivo", "Persuasivo"]
             },
             E: {
@@ -425,14 +418,11 @@
             }, 3000);
         }
 
-        // Función para guardar datos en Supabase
+        // Función para guardar datos en Supabase - VERSIÓN SIMPLIFICADA
         async function saveToSupabase(data) {
             try {
-                // Verificar que Supabase esté inicializado
-                if (!supabase) {
-                    throw new Error('Supabase no está inicializado');
-                }
-
+                console.log('Intentando guardar en Supabase...');
+                
                 const { error } = await supabase
                     .from('respuestas')
                     .insert([
@@ -441,18 +431,22 @@
                             telefono: data.telefono,
                             email: data.email,
                             resultados: JSON.stringify(data.scores),
-                            fecha: new Date()
+                            fecha: new Date().toISOString()
                         }
                     ]);
-                    
+                
                 if (error) {
                     console.error('Error de Supabase:', error);
-                    throw error;
+                    showNotification('Error: ' + error.message, true);
+                    return false;
                 }
                 
+                console.log('Datos guardados exitosamente en Supabase');
                 return true;
+                
             } catch (error) {
-                console.error('Error saving to Supabase:', error);
+                console.error('Error inesperado:', error);
+                showNotification('Error inesperado al guardar datos', true);
                 return false;
             }
         }
@@ -500,7 +494,7 @@
                 noInput.value = 'no';
                 noInput.id = `q${questionNumber}-no`;
                 const noLabel = document.createElement('label');
-                noLabel.htmlFor = `q${questionNumber}-no`;
+                noLabel.htmlFor = `q${number}-no`;
                 noLabel.textContent = 'No';
                 noOption.appendChild(noInput);
                 noOption.appendChild(noLabel);
@@ -582,9 +576,6 @@
 
         // Inicializar cuando se carga la página
         document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar Supabase
-            initSupabase();
-            
             // Inicializar formulario
             initializeForm();
             
@@ -627,6 +618,7 @@
                 };
                 
                 // Guardar en Supabase
+                showNotification('Guardando datos...');
                 const saved = await saveToSupabase(resultData);
                 
                 if (saved) {
