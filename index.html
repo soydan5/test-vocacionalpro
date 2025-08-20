@@ -317,12 +317,23 @@
 
     <script>
         // Configuración de Supabase - REEMPLAZA ESTOS VALORES CON LOS TUYOS
-        const SUPABASE_URL = 'https://clefjmvyfbugkaspmcws.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZWZqbXZ5ZmJ1Z2thc3BtY3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MTcxMzgsImV4cCI6MjA3MTI5MzEzOH0.D5ndBsoSy3rWhqHY-6dIuPpAsLl7lJFOCphiflilKys';
+        const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
+        const SUPABASE_ANON_KEY = 'tu-clave-publica-supabase';
         
-        // Crear cliente Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+        // Variable global para el cliente Supabase
+        let supabase;
+
+        // Inicializar Supabase después de que cargue el SDK
+        function initSupabase() {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase inicializado correctamente');
+            } else {
+                console.error('Error: SDK de Supabase no cargado');
+                showNotification('Error de configuración. Recarga la página.', true);
+            }
+        }
+
         // Definición de las áreas según el documento
         const areas = {
             C: {
@@ -417,6 +428,11 @@
         // Función para guardar datos en Supabase
         async function saveToSupabase(data) {
             try {
+                // Verificar que Supabase esté inicializado
+                if (!supabase) {
+                    throw new Error('Supabase no está inicializado');
+                }
+
                 const { error } = await supabase
                     .from('respuestas')
                     .insert([
@@ -430,6 +446,7 @@
                     ]);
                     
                 if (error) {
+                    console.error('Error de Supabase:', error);
                     throw error;
                 }
                 
@@ -563,8 +580,12 @@
             });
         }
 
-        // Inicializar el formulario cuando se carga la página
+        // Inicializar cuando se carga la página
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar Supabase
+            initSupabase();
+            
+            // Inicializar formulario
             initializeForm();
             
             // Configurar botón de calcular resultados
