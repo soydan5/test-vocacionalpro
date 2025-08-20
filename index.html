@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test de Orientación Vocacional</title>
+    <!-- Incluir SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -141,14 +143,6 @@
             cursor: not-allowed;
         }
         
-        .btn-secondary {
-            background: #7f8c8d;
-        }
-        
-        .btn-secondary:hover {
-            background: #636e70;
-        }
-        
         .results {
             display: none;
             margin-top: 30px;
@@ -230,15 +224,6 @@
             display: none;
         }
         
-        .admin-section {
-            margin-top: 40px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #2c3e50;
-            display: none;
-        }
-        
         .notification {
             position: fixed;
             top: 20px;
@@ -250,6 +235,10 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             display: none;
             z-index: 1000;
+        }
+        
+        .notification.error {
+            background: #F44336;
         }
         
         @media (max-width: 600px) {
@@ -305,11 +294,11 @@
             <!-- Las preguntas se insertarán aquí mediante JavaScript -->
         </form>
         
-        <button type="button" id="calculate-btn" class="btn" disabled>Calcular resultados</button>
+        <button type="button" id="calculate-btn" class="btn" disabled>Calcular resultados y enviar</button>
         
         <div class="completion-message" id="completion-message">
             <h3>¡Test completado!</h3>
-            <p>Gracias por completar el test. Tus resultados se muestran a continuación.</p>
+            <p>Gracias por completar el test. Tus resultados se han enviado correctamente y se muestran a continuación.</p>
         </div>
         
         <div id="results" class="results">
@@ -317,16 +306,6 @@
             <div id="results-container">
                 <!-- Los resultados se mostrarán aquí -->
             </div>
-        </div>
-        
-        <div class="admin-section" id="admin-section">
-            <h2>Acceso Administrador</h2>
-            <div class="form-group">
-                <label for="admin-token">Token de acceso:</label>
-                <input type="password" id="admin-token">
-            </div>
-            <button type="button" id="access-btn" class="btn btn-secondary">Acceder a datos</button>
-            <div id="admin-results" style="margin-top: 20px;"></div>
         </div>
     </div>
     
@@ -337,9 +316,12 @@
     </footer>
 
     <script>
-        // Configuración - Debes reemplazar estos valores con los tuyos
-        const GITHUB_GIST_ID = 'e03bf0fbd81ad68afe886fae066afcef'; // Reemplazar con el ID de tu Gist
-        const GITHUB_TOKEN = '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'; // Reemplazar con tu token de GitHub
+        // Configuración de Supabase - REEMPLAZA ESTOS VALORES CON LOS TUYOS
+        const SUPABASE_URL = 'https://clefjmvyfbugkaspmcws.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZWZqbXZ5ZmJ1Z2thc3BtY3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MTcxMzgsImV4cCI6MjA3MTI5MzEzOH0.D5ndBsoSy3rWhqHY-6dIuPpAsLl7lJFOCphiflilKys';
+        
+        // Crear cliente Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Definición de las áreas según el documento
         const areas = {
@@ -424,7 +406,7 @@
         function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            notification.style.background = isError ? '#F44336' : '#4CAF50';
+            notification.className = isError ? 'notification error' : 'notification';
             notification.style.display = 'block';
             
             setTimeout(() => {
@@ -432,62 +414,30 @@
             }, 3000);
         }
 
-        // Función para guardar datos en GitHub Gist
-        async function saveToGitHub(data) {
+        // Función para guardar datos en Supabase
+        async function saveToSupabase(data) {
             try {
-                // Formatear datos como CSV
-                const csvData = formatDataAsCSV(data);
-                
-                // Enviar datos a GitHub Gist
-                const response = await fetch(`https://api.github.com/gists/${GITHUB_GIST_ID}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        files: {
-                            'respuestas.csv': {
-                                content: csvData
-                            }
+                const { error } = await supabase
+                    .from('respuestas')
+                    .insert([
+                        {
+                            nombre: data.nombre,
+                            telefono: data.telefono,
+                            email: data.email,
+                            resultados: JSON.stringify(data.scores),
+                            fecha: new Date()
                         }
-                    })
-                });
-                
-                if (response.ok) {
-                    showNotification('Datos guardados correctamente');
-                    return true;
-                } else {
-                    throw new Error('Error al guardar en GitHub');
+                    ]);
+                    
+                if (error) {
+                    throw error;
                 }
+                
+                return true;
             } catch (error) {
-                console.error('Error:', error);
-                showNotification('Error al guardar los datos. Intenta nuevamente.', true);
+                console.error('Error saving to Supabase:', error);
                 return false;
             }
-        }
-
-        // Función para formatear datos como CSV
-        function formatDataAsCSV(data) {
-            let csvContent = 'Nombre,Teléfono,Email,Fecha';
-            
-            // Agregar encabezados de áreas
-            Object.keys(areas).forEach(area => {
-                csvContent += `,${area}`;
-            });
-            
-            csvContent += '\n';
-            
-            // Agregar datos
-            csvContent += `"${data.nombre}","${data.telefono}","${data.email}","${data.fecha}"`;
-            
-            // Agregar puntajes de áreas
-            Object.keys(areas).forEach(area => {
-                const score = data.scores[area] || 0;
-                csvContent += `,${score}`;
-            });
-            
-            return csvContent;
         }
 
         // Función para inicializar el formulario
@@ -558,80 +508,6 @@
             });
         }
 
-        // Inicializar el formulario cuando se carga la página
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeForm();
-            
-            // Configurar botón de calcular resultados
-            const calculateBtn = document.getElementById('calculate-btn');
-            calculateBtn.addEventListener('click', async function() {
-                // Validar datos personales
-                const nombre = document.getElementById('nombre').value;
-                const telefono = document.getElementById('telefono').value;
-                const email = document.getElementById('email').value;
-                
-                if (!nombre || !telefono || !email) {
-                    showNotification('Por favor, completa todos tus datos personales antes de calcular los resultados.', true);
-                    return;
-                }
-                
-                // Reiniciar puntajes
-                const scores = {};
-                Object.keys(areas).forEach(area => {
-                    scores[area] = 0;
-                });
-                
-                // Calcular puntajes por área
-                for (let i = 1; i <= questions.length; i++) {
-                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
-                    if (selectedOption && selectedOption.value === 'yes') {
-                        const area = questionMapping[i];
-                        if (area && scores[area] !== undefined) {
-                            scores[area]++;
-                        }
-                    }
-                }
-                
-                // Crear objeto con todos los datos
-                const resultData = {
-                    nombre,
-                    telefono,
-                    email,
-                    fecha: new Date().toLocaleString(),
-                    scores
-                };
-                
-                // Guardar en GitHub
-                const saved = await saveToGitHub(resultData);
-                
-                if (saved) {
-                    // Mostrar resultados
-                    showResults(scores);
-                    
-                    // Mostrar sección de resultados
-                    document.getElementById('results').style.display = 'block';
-                    document.getElementById('completion-message').style.display = 'block';
-                    
-                    // Desplazarse suavemente a los resultados
-                    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-            
-            // Configurar acceso administrador
-            document.getElementById('access-btn').addEventListener('click', function() {
-                const token = document.getElementById('admin-token').value;
-                if (token === 'JVcobanCong2025') { // Cambia esto por una contraseña más segura
-                    document.getElementById('admin-results').innerHTML = `
-                        <h3>Datos almacenados</h3>
-                        <p>Los datos se están guardando en tu Gist de GitHub.</p>
-                        <p>Puedes verlos en: <a href="https://gist.github.com/${GITHUB_GIST_ID}" target="_blank">https://gist.github.com/${GITHUB_GIST_ID}</a></p>
-                    `;
-                } else {
-                    showNotification('Token incorrecto', true);
-                }
-            });
-        });
-
         // Función para mostrar resultados
         function showResults(scores) {
             const resultsContainer = document.getElementById('results-container');
@@ -686,6 +562,68 @@
                 resultsContainer.appendChild(areaDiv);
             });
         }
+
+        // Inicializar el formulario cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            
+            // Configurar botón de calcular resultados
+            const calculateBtn = document.getElementById('calculate-btn');
+            calculateBtn.addEventListener('click', async function() {
+                // Validar datos personales
+                const nombre = document.getElementById('nombre').value;
+                const telefono = document.getElementById('telefono').value;
+                const email = document.getElementById('email').value;
+                
+                if (!nombre || !telefono || !email) {
+                    showNotification('Por favor, completa todos tus datos personales antes de calcular los resultados.', true);
+                    return;
+                }
+                
+                // Reiniciar puntajes
+                const scores = {};
+                Object.keys(areas).forEach(area => {
+                    scores[area] = 0;
+                });
+                
+                // Calcular puntajes por área
+                for (let i = 1; i <= questions.length; i++) {
+                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selectedOption && selectedOption.value === 'yes') {
+                        const area = questionMapping[i];
+                        if (area && scores[area] !== undefined) {
+                            scores[area]++;
+                        }
+                    }
+                }
+                
+                // Crear objeto con todos los datos
+                const resultData = {
+                    nombre,
+                    telefono,
+                    email,
+                    scores
+                };
+                
+                // Guardar en Supabase
+                const saved = await saveToSupabase(resultData);
+                
+                if (saved) {
+                    showNotification('Datos guardados correctamente');
+                    // Mostrar resultados
+                    showResults(scores);
+                    
+                    // Mostrar sección de resultados
+                    document.getElementById('results').style.display = 'block';
+                    document.getElementById('completion-message').style.display = 'block';
+                    
+                    // Desplazarse suavemente a los resultados
+                    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showNotification('Error al guardar los datos. Intenta nuevamente.', true);
+                }
+            });
+        });
     </script>
 </body>
 </html>
